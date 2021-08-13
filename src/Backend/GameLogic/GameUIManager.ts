@@ -907,7 +907,27 @@ class GameUIManager extends EventEmitter {
   }
 
   public getArtifactSending(planetId: LocationId): Artifact | undefined {
-    return this.artifactSending[planetId];
+    if (this.artifactSending[planetId]) {
+      return this.artifactSending[planetId];
+    } else {
+      const planet = this.getPlanetWithId(planetId);
+      if (!planet) return;
+      const artifactId = planet.heldArtifactIds.find(artifactId => {
+        const artifact = this.getArtifactWithId(artifactId);
+        if (!artifact) return false;
+        if (artifact.lastActivated) {
+          if (artifact.lastDeactivated && artifact.lastDeactivated > artifact.lastActivated) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        return true;
+      });
+      if (!artifactId) return;
+      return this.getArtifactWithId(artifactId);
+    }
   }
 
   public isOverOwnPlanet(coords: WorldCoords): Planet | undefined {
