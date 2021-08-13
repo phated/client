@@ -83,9 +83,11 @@ const ElevatedContainer = styled.div`
 export function PlanetCard({
   planetWrapper: p,
   standalone,
+  canvas,
 }: {
   planetWrapper: Wrapper<Planet | undefined>;
   standalone?: boolean;
+  canvas: HTMLCanvasElement;
 }) {
   const uiManager = useUIManager();
   const active = useActiveArtifact(p, uiManager);
@@ -131,7 +133,7 @@ export function PlanetCard({
               width: '110px',
             }}
           >
-            <PlanetPreview planet={planet} size={'50px'} />
+            <PlanetPreview planet={planet} size={'50px'} canvas={canvas} />
           </ElevatedContainer>
           <ElevatedContainer>
             <StatRow>

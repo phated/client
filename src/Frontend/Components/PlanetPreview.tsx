@@ -137,24 +137,20 @@ class PlanetPreviewRenderer extends WebGLManager {
   }
 }
 
-const canvas = document.createElement('canvas');
-canvas.height = 100;
-canvas.width = 100;
-
-export function PlanetPreviewImage({ planet }: { planet: Planet | undefined }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+export function PlanetPreviewImage({ planet, canvas }: { planet: Planet | undefined, canvas: HTMLCanvasElement }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [renderer, _] = useState<PlanetPreviewRenderer>(() => new PlanetPreviewRenderer(canvas));
 
   // sync ref to renderer
   useEffect(() => {
-    containerRef?.current?.appendChild(canvas);
+    containerRef.current?.appendChild(canvas);
 
     return () => {
-      if (containerRef?.current?.contains(canvas)) {
+      if (containerRef.current?.contains(canvas)) {
         containerRef.current.removeChild(canvas);
       }
     };
-  }, [containerRef]);
+  }, [containerRef, canvas]);
 
   // sync planet to renderer
   useEffect(() => {
@@ -164,10 +160,10 @@ export function PlanetPreviewImage({ planet }: { planet: Planet | undefined }) {
   return <div ref={containerRef}></div>;
 }
 
-export function PlanetPreview({ planet, size }: { planet: Planet | undefined; size: string }) {
+export function PlanetPreview({ planet, size, canvas }: { planet: Planet | undefined; size: string, canvas: HTMLCanvasElement }) {
   return (
     <PlanetPreviewWrapper size={size} color={'rgba(0,0,0,0)'}>
-      <PlanetPreviewImage planet={planet} />
+      <PlanetPreviewImage planet={planet} canvas={canvas} />
     </PlanetPreviewWrapper>
   );
 }
