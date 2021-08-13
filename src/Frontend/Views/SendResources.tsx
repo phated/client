@@ -332,11 +332,17 @@ export function SendResources({
 
   const windowManager = WindowManager.getInstance();
 
-  useEffect(() => {
+  const updateEnergySending = useCallback((energyPercent) => {
     if (!p.value || !uiManager) return;
     uiManager.setForcesSending(p.value.locationId, energyPercent);
+    setEnergyPercent(energyPercent);
+  }, [p, uiManager, setEnergyPercent]);
+
+  const updateSilverSending = useCallback((silverPercent) => {
+    if (!p.value || !uiManager) return;
     uiManager.setSilverSending(p.value.locationId, silverPercent);
-  }, [energyPercent, silverPercent, p, uiManager]);
+    setSilverPercent(silverPercent);
+  }, [p, uiManager, setSilverPercent]);
 
   useEffect(() => {
     const uiEmitter = UIEmitter.getInstance();
@@ -344,11 +350,6 @@ export function SendResources({
     windowManager.setCursorState(CursorState.Normal);
     uiEmitter.emit(UIEmitterEvent.SendCancelled);
   }, [p.value?.locationId, windowManager]);
-
-  useEffect(() => {
-    setEnergyPercent(DEFAULT_ENERGY_PERCENT);
-    setSilverPercent(DEFAULT_SILVER_PERCENT);
-  }, [p.value?.locationId, setEnergyPercent, setSilverPercent]);
 
   const doSend = useCallback(() => {
     if (!uiManager || !windowManager) return;
@@ -374,25 +375,23 @@ export function SendResources({
   });
 
   energyKeysAndPercents.forEach(([key, percent]) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useOnUp(key, () => {
-      setEnergyPercent(percent);
-    });
+      updateEnergySending(percent);
+    }, [updateEnergySending]);
   });
 
   silverKeysAndPercents.forEach(([key, percent]) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useOnUp(key, () => {
-      setSilverPercent(percent);
-    });
+      updateSilverSending(percent);
+    }, [updateSilverSending]);
   });
 
   useOnUp('-', () => {
-    setEnergyPercent((p) => _.clamp(p - 10, 0, 100));
-  });
+    updateEnergySending(_.clamp(energyPercent - 10, 0, 100));
+  }, [updateEnergySending]);
   useOnUp('+', () => {
-    setEnergyPercent((p) => _.clamp(p + 10, 0, 100));
-  });
+    updateEnergySending(_.clamp(energyPercent + 10, 0, 100));
+  }, [updateEnergySending]);
 
   useOnSendCompleted(() => {
     setSending(false);
@@ -430,12 +429,12 @@ export function SendResources({
 
   return (
     <StyledSendResources>
-      <ResourceBar selected={p.value} value={energyPercent} setValue={setEnergyPercent} />
+      <ResourceBar selected={p.value} value={energyPercent} setValue={updateEnergySending} />
       {p.value && p.value.silver > 0 && (
         <ResourceBar
           selected={p.value}
           value={silverPercent}
-          setValue={setSilverPercent}
+          setValue={updateSilverSending}
           isSilver
         />
       )}

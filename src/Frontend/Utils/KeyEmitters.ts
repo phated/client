@@ -1,5 +1,5 @@
 import { monomitter } from '@darkforest_eth/events';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Wrapper } from '../../Backend/Utils/Wrapper';
 import { useUIManager } from './AppHooks';
 import { useEmitterSubscribe } from './EmitterHooks';
@@ -60,7 +60,7 @@ export function useIsDown(key?: string) {
   return isDown;
 }
 
-export function useOnUp(key?: string, onUp?: () => void) {
+export function useOnUp(key?: string, onUp?: () => void, deps: React.DependencyList = []) {
   const [disableDefaultShortcuts] = useBooleanSetting(
     useUIManager(),
     Setting.DisableDefaultShortcuts
@@ -75,5 +75,5 @@ export function useOnUp(key?: string, onUp?: () => void) {
 
     document.addEventListener('keyup', onKeyUp);
     return () => document.removeEventListener('keyup', onKeyUp);
-  }, [key, onUp, disableDefaultShortcuts]);
+  }, [key, onUp, disableDefaultShortcuts, ...deps]);
 }
