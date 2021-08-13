@@ -16,8 +16,8 @@ import { SpecialKey, useIsDown, useOnUp } from '../Utils/KeyEmitters';
 import { EXIT_PANE, TOGGLE_SEND } from '../Utils/ShortcutConstants';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 
-const DEFAULT_ENERGY_PERCENT = 50;
-const DEFAULT_SILVER_PERCENT = 0;
+const DEFAULT_ENERGY_PERCENT = 80;
+const DEFAULT_SILVER_PERCENT = 100;
 
 const StyledSendResources = styled.div``;
 
@@ -30,6 +30,32 @@ const enum RowType {
   Silver,
   Artifact,
 }
+
+const energyKeysAndPercents = [
+  ['1', 10],
+  ['2', 20],
+  ['3', 30],
+  ['4', 40],
+  ['5', 50],
+  ['6', 60],
+  ['7', 70],
+  ['8', 80],
+  ['9', 90],
+  ['0', 100],
+] as const;
+
+const silverKeysAndPercents = [
+  ['!', 10],
+  ['@', 20],
+  ['#', 30],
+  ['$', 40],
+  ['%', 50],
+  ['^', 60],
+  ['&', 70],
+  ['*', 80],
+  ['(', 90],
+  [')', 100],
+] as const;
 
 function ResourceRowIcon({ rowType }: { rowType: RowType }) {
   return (
@@ -349,19 +375,20 @@ export function SendResources({
     }
   });
 
-  for (let i = 0; i < 10; i++) {
+  energyKeysAndPercents.forEach(([key, percent]) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useOnUp(i + '', () => {
-      let percent = i * 10;
-
-      if (i === 0) {
-        percent = 100;
-      }
-
-      !shiftDown && setEnergyPercent(percent);
+    useOnUp(key, () => {
+      setEnergyPercent(percent);
       shiftDown && setSilverPercent(percent);
     });
-  }
+  });
+
+  silverKeysAndPercents.forEach(([key, percent]) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useOnUp(key, () => {
+      setSilverPercent(percent);
+    });
+  });
 
   const setPercent = shiftDown ? setSilverPercent : setEnergyPercent;
   useOnUp('-', () => {

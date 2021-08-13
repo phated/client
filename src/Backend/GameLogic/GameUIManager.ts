@@ -896,14 +896,14 @@ class GameUIManager extends EventEmitter {
    */
   public getForcesSending(planetId: LocationId): number {
     const forces = this.forcesSending[planetId];
-    return forces ?? 50;
+    return forces ?? 80;
   }
 
   /**
    * Percent from 0 to 100.
    */
   public getSilverSending(planetId: LocationId): number {
-    return this.silverSending[planetId] || 0;
+    return this.silverSending[planetId] || 100;
   }
 
   public getArtifactSending(planetId: LocationId): Artifact | undefined {

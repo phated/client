@@ -7,10 +7,10 @@ import { Setting, useBooleanSetting } from './SettingsHooks';
 
 export const SpecialKey = {
   Space: ' ',
-  Tab: 'Tab',
-  Escape: 'Escape',
-  Control: 'Control',
-  Shift: 'Shift',
+  Tab: 'tab',
+  Escape: 'escape',
+  Control: 'control',
+  Shift: 'shift',
 } as const;
 
 export const keyUp$ = monomitter<Wrapper<string>>();
