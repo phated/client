@@ -364,8 +364,6 @@ export function SendResources({
     }
   }, [p, windowManager, uiManager]);
 
-  const shiftDown = useIsDown(SpecialKey.Shift);
-
   useOnUp(TOGGLE_SEND, doSend);
   useOnUp(EXIT_PANE, () => {
     if (!sending) uiManager.selectedPlanetId$.publish(undefined);
@@ -379,7 +377,6 @@ export function SendResources({
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useOnUp(key, () => {
       setEnergyPercent(percent);
-      shiftDown && setSilverPercent(percent);
     });
   });
 
@@ -390,12 +387,11 @@ export function SendResources({
     });
   });
 
-  const setPercent = shiftDown ? setSilverPercent : setEnergyPercent;
   useOnUp('-', () => {
-    setPercent((p) => _.clamp(p - 10, 0, 100));
+    setEnergyPercent((p) => _.clamp(p - 10, 0, 100));
   });
   useOnUp('+', () => {
-    setPercent((p) => _.clamp(p + 10, 0, 100));
+    setEnergyPercent((p) => _.clamp(p + 10, 0, 100));
   });
 
   useOnSendCompleted(() => {
