@@ -210,7 +210,7 @@ export class ContractsAPI extends EventEmitter {
   }
 
   public async setupEventListeners(): Promise<void> {
-    const { coreContract, gptCreditContract, scoreContract } = this;
+    const { coreContract, scoreContract } = this;
 
     const filter = {
       address: coreContract.address,
@@ -352,15 +352,6 @@ export class ContractsAPI extends EventEmitter {
 
     this.ethConnection.subscribeToContractEvents(coreContract, eventHandlers, filter);
 
-    gptCreditContract.on(
-      ContractEvent.ChangedGPTCreditPrice,
-      async (newPrice: EthersBN, _: Event) => {
-        this.emit(
-          ContractsAPIEvent.ChangedGPTCreditPrice,
-          parseFloat(ethers.utils.formatEther(newPrice.toString()))
-        );
-      }
-    );
     scoreContract.on(
       ContractEvent.LocationClaimed,
       async (revealerAddr: string, _previousClaimer: string, location: EthersBN, _: Event) => {
@@ -376,7 +367,7 @@ export class ContractsAPI extends EventEmitter {
   }
 
   public removeEventListeners(): void {
-    const { coreContract, gptCreditContract, scoreContract } = this;
+    const { coreContract, scoreContract } = this;
 
     coreContract.removeAllListeners(ContractEvent.PlayerInitialized);
     coreContract.removeAllListeners(ContractEvent.ArrivalQueued);
@@ -390,7 +381,6 @@ export class ContractsAPI extends EventEmitter {
     coreContract.removeAllListeners(ContractEvent.ArtifactDeactivated);
     coreContract.removeAllListeners(ContractEvent.LocationRevealed);
     coreContract.removeAllListeners(ContractEvent.PlanetSilverWithdrawn);
-    gptCreditContract.removeAllListeners(ContractEvent.ChangedGPTCreditPrice);
     scoreContract.removeAllListeners(ContractEvent.LocationClaimed);
   }
 
@@ -402,7 +392,10 @@ export class ContractsAPI extends EventEmitter {
    * Given an unconfirmed (but submitted) transaction, emits the appropriate
    * [[ContractsAPIEvent]].
    */
-  public waitFor(submitted: SubmittedTx, receiptPromise: Promise<providers.TransactionReceipt>) {
+  public waitFor(
+    submitted: SubmittedTx,
+    receiptPromise: Promise<providers.TransactionReceipt>
+  ): Promise<void | providers.TransactionReceipt> {
     this.emit(ContractsAPIEvent.TxSubmitted, submitted);
 
     return receiptPromise
@@ -410,7 +403,7 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.TxConfirmed, submitted);
         return receipt;
       })
-      .catch((e) => {
+      .catch((_err) => {
         this.emit(ContractsAPIEvent.TxReverted, submitted);
       });
   }
@@ -418,7 +411,7 @@ export class ContractsAPI extends EventEmitter {
   async reveal(
     args: RevealSnarkContractCallArgs,
     action: UnconfirmedReveal
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -438,7 +431,10 @@ export class ContractsAPI extends EventEmitter {
     return this.waitFor(unminedRevealTx, tx.confirmed);
   }
 
-  async claim(args: ClaimArgs, action: UnconfirmedClaim): Promise<providers.TransactionReceipt | void> {
+  async claim(
+    args: ClaimArgs,
+    action: UnconfirmedClaim
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -461,7 +457,7 @@ export class ContractsAPI extends EventEmitter {
   async initializePlayer(
     args: InitSnarkContractCallArgs,
     action: UnconfirmedInit
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -485,7 +481,7 @@ export class ContractsAPI extends EventEmitter {
     planetId: LocationId,
     newOwner: EthAddress,
     actionId: string
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -510,7 +506,10 @@ export class ContractsAPI extends EventEmitter {
 
   // throws if tx initialization fails
   // otherwise, returns a promise of a submtited (unmined) tx receipt
-  async upgradePlanet(args: UpgradeArgs, actionId: string): Promise<providers.TransactionReceipt | void> {
+  async upgradePlanet(
+    args: UpgradeArgs,
+    actionId: string
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -564,7 +563,7 @@ export class ContractsAPI extends EventEmitter {
     location: WorldLocation,
     biomeSnarkArgs: BiomebaseSnarkContractCallArgs,
     actionId: string
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -586,7 +585,9 @@ export class ContractsAPI extends EventEmitter {
     return this.waitFor(unminedFindArtifact, tx.confirmed);
   }
 
-  async depositArtifact(action: UnconfirmedDepositArtifact): Promise<providers.TransactionReceipt | void> {
+  async depositArtifact(
+    action: UnconfirmedDepositArtifact
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -615,7 +616,7 @@ export class ContractsAPI extends EventEmitter {
   // otherwise, returns a promise of a submtited (unmined) tx receipt
   async withdrawArtifact(
     action: UnconfirmedWithdrawArtifact
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -698,7 +699,7 @@ export class ContractsAPI extends EventEmitter {
     shipsMoved: number,
     silverMoved: number,
     artifactMoved?: ArtifactId
-  ): Promise<providers.TransactionReceipt | void> {
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
@@ -774,7 +775,9 @@ export class ContractsAPI extends EventEmitter {
     return this.waitFor(unminedBuyHatTx, tx.confirmed);
   }
 
-  async withdrawSilver(action: UnconfirmedWithdrawSilver): Promise<providers.TransactionReceipt | void> {
+  async withdrawSilver(
+    action: UnconfirmedWithdrawSilver
+  ): Promise<void | providers.TransactionReceipt> {
     if (!this.txExecutor) {
       throw new Error('no signer, cannot execute tx');
     }
