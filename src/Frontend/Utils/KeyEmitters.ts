@@ -60,20 +60,20 @@ export function useIsDown(key?: string) {
   return isDown;
 }
 
-export function useOnUp(key?: string, onUp?: () => void, deps: React.DependencyList = []) {
+export function useOnUp(key: string, onUp: () => void, deps: React.DependencyList = []) {
   const [disableDefaultShortcuts] = useBooleanSetting(
     useUIManager(),
     Setting.DisableDefaultShortcuts
   );
 
   useEffect(() => {
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === key && !shouldIgnoreShortcutKeypress(e)) {
-        !disableDefaultShortcuts && onUp && onUp();
-      }
-    };
+    if (disableDefaultShortcuts) return;
 
-    document.addEventListener('keyup', onKeyUp);
-    return () => document.removeEventListener('keyup', onKeyUp);
+    const sub = keyUp$.subscribe((e: Wrapper<string>) => {
+      if (e.value === key) {
+        onUp();
+      }
+    });
+    return sub.unsubscribe
   }, [key, onUp, disableDefaultShortcuts, ...deps]);
 }

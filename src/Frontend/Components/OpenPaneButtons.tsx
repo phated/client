@@ -30,7 +30,7 @@ export function OpenPaneButton({
   title: string;
   element: () => React.ReactElement;
   helpContent?: React.ReactElement;
-  shortcutKey?: string;
+  shortcutKey: string;
 }) {
   const open = useCallback(() => {
     modal.push({
