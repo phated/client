@@ -89,68 +89,68 @@ export default class Overlay2DRenderer {
     fill2: string | CanvasPattern = 'red', // hat fill color for top layer
     hoverCoords: WorldCoords | null = null
   ) {
-    const { ctx } = this;
-    const viewport = Viewport.getInstance();
-    const hat = hatFromType(hatType);
+    // const { ctx } = this;
+    // const viewport = Viewport.getInstance();
+    // const hat = hatFromType(hatType);
 
-    const offY = radius + height / 4;
+    // const offY = radius + height / 4;
 
-    const trueCenter = viewport.worldToCanvasCoords(center);
-    const trueWidth = viewport.worldToCanvasDist(width);
-    const trueHeight = viewport.worldToCanvasDist(height);
-    const trueOffY = -1 * viewport.worldToCanvasDist(offY);
+    // const trueCenter = viewport.worldToCanvasCoords(center);
+    // const trueWidth = viewport.worldToCanvasDist(width);
+    // const trueHeight = viewport.worldToCanvasDist(height);
+    // const trueOffY = -1 * viewport.worldToCanvasDist(offY);
 
-    // calculate hat hover
+    // // calculate hat hover
 
-    // TODO when we add planet rotation back in we'll need to use sin/cos to calculate hat center...
-    const hatCenter: WorldCoords = {
-      x: center.x,
-      y: center.y + offY,
-    };
+    // // TODO when we add planet rotation back in we'll need to use sin/cos to calculate hat center...
+    // const hatCenter: WorldCoords = {
+    //   x: center.x,
+    //   y: center.y + offY,
+    // };
 
-    const hatTopLeft = {
-      x: hatCenter.x - width / 2,
-      y: hatCenter.y - height / 2,
-    };
+    // const hatTopLeft = {
+    //   x: hatCenter.x - width / 2,
+    //   y: hatCenter.y - height / 2,
+    // };
 
-    const hovering =
-      (hoverCoords &&
-        hoverCoords.x > hatTopLeft.x &&
-        hoverCoords.x < hatTopLeft.x + width &&
-        hoverCoords.y > hatTopLeft.y &&
-        hoverCoords.y < hatTopLeft.y + height) ||
-      hoveringPlanet;
+    // const hovering =
+    //   (hoverCoords &&
+    //     hoverCoords.x > hatTopLeft.x &&
+    //     hoverCoords.x < hatTopLeft.x + width &&
+    //     hoverCoords.y > hatTopLeft.y &&
+    //     hoverCoords.y < hatTopLeft.y + height) ||
+    //   hoveringPlanet;
 
-    // now draw the hat
+    // // now draw the hat
 
-    ctx.save();
+    // ctx.save();
 
-    // move to planet center
-    ctx.translate(trueCenter.x, trueCenter.y);
+    // // move to planet center
+    // ctx.translate(trueCenter.x, trueCenter.y);
 
-    // extrude out to outside
-    ctx.rotate(rotation);
-    ctx.translate(0, trueOffY);
+    // // extrude out to outside
+    // ctx.rotate(rotation);
+    // ctx.translate(0, trueOffY);
 
-    // move to svg center
-    ctx.scale(trueWidth / pathWidth, trueHeight / pathHeight);
-    ctx.translate(-pathWidth / 2, -pathHeight / 2);
+    // // move to svg center
+    // ctx.scale(trueWidth / pathWidth, trueHeight / pathHeight);
+    // ctx.translate(-pathWidth / 2, -pathHeight / 2);
 
-    ctx.globalAlpha = hovering ? 0.3 : 1;
+    // ctx.globalAlpha = hovering ? 0.3 : 1;
 
-    ctx.fillStyle = fill1;
-    for (const pathStr of hat.bottomLayer) {
-      ctx.fill(new Path2D(pathStr));
-    }
+    // ctx.fillStyle = fill1;
+    // for (const pathStr of hat.bottomLayer) {
+    //   ctx.fill(new Path2D(pathStr));
+    // }
 
-    ctx.fillStyle = fill2;
-    for (const pathStr of hat.topLayer) {
-      ctx.fill(new Path2D(pathStr));
-    }
+    // ctx.fillStyle = fill2;
+    // for (const pathStr of hat.topLayer) {
+    //   ctx.fill(new Path2D(pathStr));
+    // }
 
-    ctx.globalAlpha = 1;
+    // ctx.globalAlpha = 1;
 
-    ctx.restore();
+    // ctx.restore();
   }
 
   drawLoopWorld(
@@ -245,39 +245,39 @@ export default class Overlay2DRenderer {
     message: PlanetMessage<EmojiFlagBody>,
     textAlpha: number
   ) {
-    const viewport = Viewport.getInstance();
-    const pixelCoords = viewport.worldToCanvasCoords(centerWorld);
-    const radiusPixels = viewport.worldToCanvasDist(radiusWorld);
-    const text = message.body.emoji;
+    // const viewport = Viewport.getInstance();
+    // const pixelCoords = viewport.worldToCanvasCoords(centerWorld);
+    // const radiusPixels = viewport.worldToCanvasDist(radiusWorld);
+    // const text = message.body.emoji;
 
-    let size = radiusPixels;
-    let offsetY = -2;
+    // let size = radiusPixels;
+    // let offsetY = -2;
 
-    if (renderInfo.planet.emojiZoopAnimation !== undefined) {
-      size *= renderInfo.planet.emojiZoopAnimation.value();
-    }
+    // if (renderInfo.planet.emojiZoopAnimation !== undefined) {
+    //   size *= renderInfo.planet.emojiZoopAnimation.value();
+    // }
 
-    if (size < 2) {
-      return;
-    }
+    // if (size < 2) {
+    //   return;
+    // }
 
-    if (renderInfo.planet.emojiBobAnimation !== undefined) {
-      offsetY += renderInfo.planet.emojiBobAnimation.value() * (radiusPixels * 0.1);
-    }
+    // if (renderInfo.planet.emojiBobAnimation !== undefined) {
+    //   offsetY += renderInfo.planet.emojiBobAnimation.value() * (radiusPixels * 0.1);
+    // }
 
-    // don't want to obscure the silver text
-    if (renderInfo.planet.silver !== 0) {
-      offsetY -= 15;
-    }
+    // // don't want to obscure the silver text
+    // if (renderInfo.planet.silver !== 0) {
+    //   offsetY -= 15;
+    // }
 
-    this.ctx.font = `${size}px Arial`;
-    this.ctx.fillStyle = `rgba(0, 0, 0, ${textAlpha})`;
-    const textSize = this.ctx.measureText(text);
-    this.ctx.fillText(
-      text,
-      pixelCoords.x - textSize.width / 2,
-      pixelCoords.y - radiusPixels * 1.3 + offsetY
-    );
+    // this.ctx.font = `${size}px Arial`;
+    // this.ctx.fillStyle = `rgba(0, 0, 0, ${textAlpha})`;
+    // const textSize = this.ctx.measureText(text);
+    // this.ctx.fillText(
+    //   text,
+    //   pixelCoords.x - textSize.width / 2,
+    //   pixelCoords.y - radiusPixels * 1.3 + offsetY
+    // );
   }
 
   drawText(
